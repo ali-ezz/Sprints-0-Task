@@ -15,7 +15,10 @@ GOOD = {
 
 @pytest.fixture
 def client(monkeypatch):
-    """TestClient runs background tasks synchronously after the response."""
+    """TestClient runs background tasks synchronously after the response.
+
+    Gemini and ServiceNow are stubbed — no webhook test should touch the network.
+    """
     calls: list[tuple] = []
 
     def fake_decide(short, desc, priority):
@@ -23,6 +26,7 @@ def client(monkeypatch):
         return Decision(decision=DecisionType.respond, message="Restart the printer.")
 
     monkeypatch.setattr(main, "decide", fake_decide)
+    monkeypatch.setattr(main, "write_back", lambda *_a, **_k: None)
     with TestClient(main.app) as c:
         c.decide_calls = calls  # type: ignore[attr-defined]
         yield c

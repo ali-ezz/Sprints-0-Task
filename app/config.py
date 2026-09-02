@@ -25,6 +25,7 @@ class Settings(BaseSettings):
     servicenow_instance_url: str = Field(..., description="https://devXXXXXX.service-now.com")
     servicenow_username: str
     servicenow_password: str
+    servicenow_close_code: str = "Solved (Permanently)"
 
     # Gemini
     gemini_api_key: str

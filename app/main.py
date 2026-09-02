@@ -24,6 +24,7 @@ from app.decision import decide
 from app.idempotency import get_idempotency
 from app.logs import configure_logging
 from app.models import IncidentPayload
+from app.servicenow import write_back
 
 log = logging.getLogger("task0.webhook")
 
@@ -67,10 +68,15 @@ def process_incident(payload: IncidentPayload) -> None:
             "decision made",
             extra={"incident": payload.number, "decision": result.decision.value},
         )
-        # Phase 6 wires the ServiceNow write-back here; complete() will move to
-        # *after* a successful PATCH so an incident is only marked done once written.
-        if settings.writeback_enabled:
-            get_idempotency().complete(payload.incident_sys_id, result.decision.value)
+        if not settings.writeback_enabled:
+            log.info(
+                "write-back disabled (dry-run)",
+                extra={"incident": payload.number, "would_write": result.decision.value},
+            )
+            return
+        write_back(payload.incident_sys_id, payload.number, result)
+        # Marked done only after the PATCH succeeded.
+        get_idempotency().complete(payload.incident_sys_id, result.decision.value)
     except Exception:
         log.exception("background processing failed", extra={"incident": payload.number})
         if settings.writeback_enabled:
