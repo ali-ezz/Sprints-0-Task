@@ -6,7 +6,7 @@ GET  /healthz  — liveness probe.
 
 Design guarantees:
 * The endpoint replies in well under NFR1's ~2 s: the only synchronous work is payload
-  validation and (Phase 5) the dedup claim.
+  validation and the atomic dedup claim.
 * The service never returns a bare 500 for a bad payload — a RequestValidationError
   becomes a clean 422, and a catch-all handler backstops everything else (NFR3).
 * The background task never raises (its failures are logged, not crashed).
@@ -21,6 +21,7 @@ from fastapi.responses import JSONResponse
 
 from app.config import get_settings
 from app.decision import decide
+from app.idempotency import get_idempotency
 from app.logs import configure_logging
 from app.models import IncidentPayload
 
@@ -59,15 +60,21 @@ async def healthz() -> dict:
 
 def process_incident(payload: IncidentPayload) -> None:
     """Background work: decide, then (Phase 6) write back. Must never raise."""
+    settings = get_settings()
     try:
         result = decide(payload.short_description, payload.description, payload.priority)
         log.info(
             "decision made",
             extra={"incident": payload.number, "decision": result.decision.value},
         )
-        # Phase 6 wires the ServiceNow write-back here.
+        # Phase 6 wires the ServiceNow write-back here; complete() will move to
+        # *after* a successful PATCH so an incident is only marked done once written.
+        if settings.writeback_enabled:
+            get_idempotency().complete(payload.incident_sys_id, result.decision.value)
     except Exception:
         log.exception("background processing failed", extra={"incident": payload.number})
+        if settings.writeback_enabled:
+            get_idempotency().fail(payload.incident_sys_id)
 
 
 @app.post("/webhook", status_code=202, response_model=None)
@@ -81,7 +88,14 @@ async def webhook(
         log.warning("rejected webhook: bad shared secret", extra={"incident": payload.number})
         return JSONResponse(status_code=401, content={"error": "bad or missing X-Webhook-Secret"})
 
-    # Phase 5 inserts the dedup claim here (and returns early on a duplicate).
+    # Dedup claim (synchronous, atomic, before 202). Skipped in dry-run so the same
+    # incident can be replayed for before/after screenshots.
+    if settings.writeback_enabled and not get_idempotency().claim(
+        payload.incident_sys_id, payload.number
+    ):
+        log.info("duplicate, skipping", extra={"incident": payload.number})
+        return {"status": "duplicate", "incident": payload.number}
+
     background.add_task(process_incident, payload)
     log.info("accepted", extra={"incident": payload.number})
     return {"status": "accepted", "incident": payload.number}

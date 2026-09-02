@@ -79,3 +79,41 @@ class TestSharedSecret:
     def test_correct_secret_accepted(self, client):
         r = client.post("/webhook", json=GOOD, headers={"X-Webhook-Secret": "s3cr3t"})
         assert r.status_code == 202
+
+
+class TestDedup:
+    """FR5 — the same incident, delivered twice, is processed once."""
+
+    @pytest.fixture(autouse=True)
+    def _writeback_on(self, monkeypatch, tmp_path):
+        monkeypatch.setenv("SERVICENOW_WRITEBACK", "on")
+        monkeypatch.setenv("DEDUP_DB_PATH", str(tmp_path / "dedup.sqlite3"))
+        from app.config import get_settings
+        from app.idempotency import _idempotency_for
+
+        get_settings.cache_clear()
+        _idempotency_for.cache_clear()
+        yield
+        get_settings.cache_clear()
+        _idempotency_for.cache_clear()
+
+    def test_same_incident_processed_once(self, client):
+        r1 = client.post("/webhook", json=GOOD)
+        r2 = client.post("/webhook", json=GOOD)
+        assert r1.json() == {"status": "accepted", "incident": "INC0010001"}
+        assert r2.json() == {"status": "duplicate", "incident": "INC0010001"}
+        assert len(client.decide_calls) == 1
+
+    def test_failed_incident_is_retried_on_next_delivery(self, client, monkeypatch):
+        def boom(*_a, **_k):
+            raise RuntimeError("gemini exploded")
+
+        monkeypatch.setattr(main, "decide", boom)
+        client.post("/webhook", json=GOOD)  # fails in the background -> row 'failed'
+
+        monkeypatch.setattr(
+            main,
+            "decide",
+            lambda *_a, **_k: Decision(decision=DecisionType.respond, message="ok"),
+        )
+        assert client.post("/webhook", json=GOOD).json()["status"] == "accepted"
