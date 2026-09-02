@@ -52,11 +52,15 @@ cp .env.example .env
 |---|---|
 | `SERVICENOW_INSTANCE_URL` | e.g. `https://devXXXXXX.service-now.com` (no trailing slash) |
 | `SERVICENOW_USERNAME` / `SERVICENOW_PASSWORD` | PDI `admin` credentials (Basic auth) |
+| `SERVICENOW_CLOSE_CODE` | close code used when resolving on `respond` (default `Solved (Permanently)`) |
 | `GEMINI_API_KEY` | from Google AI Studio |
-| `GEMINI_MODEL` | default `gemini-2.5-flash` |
+| `GEMINI_MODEL` | default `gemini-2.5-flash` (`gemini-2.5-flash-lite` has a higher daily quota) |
 | `PORT` | default `8000` |
 | `WEBHOOK_SHARED_SECRET` | optional; if set, the Business Rule must send it as `X-Webhook-Secret` |
 | `SERVICENOW_WRITEBACK` | `on` (default) or `off` to compute + log the decision without writing back |
+| `DEDUP_DB_PATH` | SQLite file for the once-only guard (default `dedup.sqlite3`) |
+
+Full ServiceNow / Business Rule walkthrough: [`docs/servicenow_setup.md`](docs/servicenow_setup.md).
 
 ## Run
 
@@ -99,7 +103,12 @@ uv run python scripts/eval_prompt.py   # run the 3 goldens through the real mode
 - **Nothing hits the service** — the tunnel URL changes every restart; update the Business
   Rule. Check the PDI **System Log → All** for `Task0` lines.
 - **PDI asleep** — wake it from the developer portal.
-- **`429` / `503` from Gemini** — free-tier limits (~10 req/min). The service retries with
-  backoff and falls back to `escalate`.
+- **`429` / `503` from Gemini** — free-tier limits are ~10 req/min and, on a fresh
+  project, as low as ~20–50 req/**day** for `gemini-2.5-flash`. The service retries with
+  backoff and falls back to `escalate` when exhausted. For heavy iteration set
+  `GEMINI_MODEL=gemini-2.5-flash-lite` (higher daily quota) or wait for the daily reset.
 - **PDI login fails** — repeated failed Basic-auth attempts can lock the account for ~30
   min; confirm the password by logging into the ServiceNow UI first.
+- **Incident stuck / not re-processed** — a completed incident is deduped by
+  `incident_sys_id`; delete its row from `dedup.sqlite3` (or use
+  `scripts/send_test.py --force` for the synthetic ones) to replay it.
