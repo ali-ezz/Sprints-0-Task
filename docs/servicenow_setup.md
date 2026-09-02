@@ -14,6 +14,20 @@ You do not need prior ServiceNow experience. ~15 minutes.
 > ~30 min. If the REST API returns `401`, first confirm the password by logging into the
 > web UI.
 
+## 1b. Verify the close code (do this first)
+
+The `respond` write-back resolves the incident with a `close_code`. Valid values vary by
+instance/release. List them:
+
+```bash
+curl -s -u "admin:$SERVICENOW_PASSWORD" \
+  "$SERVICENOW_INSTANCE_URL/api/now/table/sys_choice?sysparm_query=name=incident^element=close_code^language=en&sysparm_fields=value,label" \
+  | python3 -m json.tool
+```
+
+Set `SERVICENOW_CLOSE_CODE` in `.env` to one of those `value`s (default assumed:
+`Solved (Permanently)`).
+
 ## 2. Start the service and a tunnel
 
 ```bash
