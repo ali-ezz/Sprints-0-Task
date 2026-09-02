@@ -1,18 +1,22 @@
-"""Test-wide fixtures. Sets dummy env vars so `Settings()` never needs real secrets.
+"""Test-wide fixtures.
 
-Environment variables take precedence over the .env file in pydantic-settings, so these
-override any real local .env during tests.
+Force dummy credentials into the environment so `Settings()` is deterministic, never needs
+real secrets, and never accidentally picks up a real local `.env` or exported shell vars.
+Environment variables take precedence over the `.env` file in pydantic-settings.
 """
 
 import os
 
-os.environ.setdefault("SERVICENOW_INSTANCE_URL", "https://dev-test.service-now.com")
-os.environ.setdefault("SERVICENOW_USERNAME", "admin")
-os.environ.setdefault("SERVICENOW_PASSWORD", "test-password")
-os.environ.setdefault("GEMINI_API_KEY", "test-gemini-key")
-os.environ.setdefault("GEMINI_MODEL", "gemini-2.5-flash")
-os.environ.setdefault("WEBHOOK_SHARED_SECRET", "")
-os.environ.setdefault("SERVICENOW_WRITEBACK", "off")
+_TEST_ENV = {
+    "SERVICENOW_INSTANCE_URL": "https://dev-test.service-now.com",
+    "SERVICENOW_USERNAME": "admin",
+    "SERVICENOW_PASSWORD": "test-password",
+    "GEMINI_API_KEY": "test-gemini-key",
+    "GEMINI_MODEL": "gemini-2.5-flash",
+    "WEBHOOK_SHARED_SECRET": "",
+    "SERVICENOW_WRITEBACK": "off",
+}
+os.environ.update(_TEST_ENV)  # force, not setdefault
 
 
 import pytest  # noqa: E402
@@ -20,7 +24,6 @@ import pytest  # noqa: E402
 
 @pytest.fixture(autouse=True)
 def _clear_settings_cache():
-    """Each test gets a fresh Settings() in case it tweaks env vars."""
     from app.config import get_settings
 
     get_settings.cache_clear()
