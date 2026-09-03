@@ -57,6 +57,14 @@ Put the same value in `.env` (`WEBHOOK_SHARED_SECRET`) and in the Business Rule 
 
 ## 4. Create the Business Rule
 
+A rule named **`Task0 - Send Incident to Agent`** already exists on this instance (created
+during testing) but is **inactive** and points at a throwaway tunnel URL. Either:
+
+- **Reuse it:** open it (**All → `sys_script.list` → that name**), set **Active = true**,
+  and in the script replace the `setEndpoint('https://...trycloudflare.com/webhook')` URL
+  with your current tunnel URL. Save.
+- **Or create a fresh one:**
+
 **All → Business Rules → New**
 
 | Field | Value |

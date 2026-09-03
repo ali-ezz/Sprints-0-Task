@@ -3,6 +3,11 @@
 A support ticket is created in ServiceNow; this service decides what to do with it and
 writes the answer back onto the same ticket — automatically, with no manual steps.
 
+> Verified end-to-end on PDI `dev434590`: a Business Rule on `incident` insert →
+> `cloudflared` tunnel → this service → Gemini → Table API write-back. The three
+> `test_incidents.json` tickets produced `respond` / `ask` / `escalate` live and were
+> updated on the incident accordingly (FR1–FR6).
+
 ```
 Incident created (ServiceNow PDI)
         │  Business Rule (after + Insert)
