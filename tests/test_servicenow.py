@@ -27,7 +27,7 @@ def test_body_respond_resolves():
     assert body == {
         "work_notes": "Restart the printer.",
         "close_notes": "Restart the printer.",
-        "close_code": "Solved (Permanently)",
+        "close_code": "Solution provided",
         "state": "6",
     }
 

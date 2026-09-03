@@ -19,12 +19,16 @@ generalisation, so the calibration examples in the prompt deliberately use *diff
 scenarios (router, procurement, portal login) that exercise the other articles.
 
 **The friction was operational, not conceptual.** The ServiceNow PDI rejected Basic auth
-even after two password resets — probably an account lockout from my own repeated probe
-attempts — which blocked live write-back testing. And the Gemini free tier turned out to
-allow only ~20–50 requests per *day* on `gemini-2.5-flash`, far below the per-minute
-number everyone quotes, so I had to ration real calls and lean on mocked unit tests plus a
-small throttled eval script. Both pushed me to build the whole service against mocks first
-and verify the decision quality with a handful of real calls rather than a big sweep.
+with a `401` even though the exact same credentials logged into the web UI — which turned
+out to be ServiceNow's new *Basic Authentication Account Security*: on recent releases the
+REST API blocks Basic auth unless the user holds the `snc_basic_auth_api_access` role.
+Adding that role fixed it instantly. The probe that followed also caught that this
+instance's valid `close_code` values are nothing like the `Solved (Permanently)` the guide
+implies — resolving needs `Solution provided` here. And the Gemini free tier allows only
+~20 requests per *day* on `gemini-2.5-flash`, far below the per-minute figure that's
+usually quoted, so I rationed real calls and leaned on mocked unit tests plus a small
+throttled eval script. All of this pushed me to build the whole service against mocks
+first and verify against the live systems with a handful of targeted calls.
 
 ## What would you improve with more time?
 

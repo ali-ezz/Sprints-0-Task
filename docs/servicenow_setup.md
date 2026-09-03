@@ -14,6 +14,16 @@ You do not need prior ServiceNow experience. ~15 minutes.
 > ~30 min. If the REST API returns `401`, first confirm the password by logging into the
 > web UI.
 
+### If the REST API returns 401 but web login works
+
+New PDIs (Zurich / Australia and later) ship with **Basic Authentication Account Security**
+enabled — Basic auth to the REST API is blocked unless the user has the
+**`snc_basic_auth_api_access`** role. Add it:
+
+**All** → `sys_user.list` → open **admin** → **Roles** tab → **Edit…** → add
+`snc_basic_auth_api_access` → **Save**. (If it's still 401 afterwards, a role-based MFA
+policy is also in play — add `admin` to the MFA-exempt group.)
+
 ## 1b. Verify the close code (do this first)
 
 The `respond` write-back resolves the incident with a `close_code`. Valid values vary by
@@ -25,8 +35,11 @@ curl -s -u "admin:$SERVICENOW_PASSWORD" \
   | python3 -m json.tool
 ```
 
-Set `SERVICENOW_CLOSE_CODE` in `.env` to one of those `value`s (default assumed:
-`Solved (Permanently)`).
+Set `SERVICENOW_CLOSE_CODE` in `.env` to one of those `value`s. On `dev434590`
+(Australia release) the list is: `No resolution provided`, `Resolved by request`,
+`Resolved by caller`, **`Solution provided`** (the default), `Duplicate`,
+`Resolved by change`, `Workaround provided`, `Known error`, `Resolved by problem`,
+`User error`. Older instances used `Solved (Permanently)` etc. — always check.
 
 ## 2. Start the service and a tunnel
 

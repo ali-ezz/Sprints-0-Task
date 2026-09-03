@@ -8,11 +8,13 @@
      "$SERVICENOW_INSTANCE_URL/api/now/table/sys_choice?sysparm_query=name=incident^element=close_code^language=en&sysparm_fields=value,label" \
      | python3 -m json.tool
    ```
-   Put a value from that list in `.env` as `SERVICENOW_CLOSE_CODE` (default is
-   `Solved (Permanently)`).
-2. Start the service + tunnel, create the Business Rule
+   Put a value from that list in `.env` as `SERVICENOW_CLOSE_CODE` (default
+   `Solution provided`, valid on `dev434590`; older instances differ).
+2. If the REST API 401s while browser login works: add the `snc_basic_auth_api_access`
+   role to the user ([servicenow_setup.md](servicenow_setup.md)).
+3. Start the service + tunnel, create the Business Rule
    ([servicenow_setup.md](servicenow_setup.md)).
-3. Optional: `GEMINI_MODEL=gemini-2.5-flash-lite` if you're near the daily quota. If you
+4. Optional: `GEMINI_MODEL=gemini-2.5-flash-lite` if you're near the daily quota. If you
    switch, first run `uv run python scripts/eval_prompt.py --model gemini-2.5-flash-lite --n 3`
    and confirm all three goldens still pass.
 
