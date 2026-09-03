@@ -29,7 +29,9 @@ class Settings(BaseSettings):
 
     # Gemini
     gemini_api_key: str
-    gemini_model: str = "gemini-2.5-flash"
+    # "gemini-flash-latest" is an alias tracking the current Flash model. A pinned id like
+    # "gemini-2.5-flash" also works; each id has its own free-tier daily quota bucket.
+    gemini_model: str = "gemini-flash-latest"
 
     # Service
     port: int = 8000

@@ -57,9 +57,9 @@ cp .env.example .env
 |---|---|
 | `SERVICENOW_INSTANCE_URL` | e.g. `https://devXXXXXX.service-now.com` (no trailing slash) |
 | `SERVICENOW_USERNAME` / `SERVICENOW_PASSWORD` | PDI `admin` credentials (Basic auth) |
-| `SERVICENOW_CLOSE_CODE` | close code used when resolving on `respond` (default `Solved (Permanently)`) |
+| `SERVICENOW_CLOSE_CODE` | close code used when resolving on `respond` (default `Solution provided`; list valid values per instance) |
 | `GEMINI_API_KEY` | from Google AI Studio |
-| `GEMINI_MODEL` | default `gemini-2.5-flash` (`gemini-2.5-flash-lite` has a higher daily quota) |
+| `GEMINI_MODEL` | default `gemini-flash-latest`; any Gemini id works and each has its own free daily quota |
 | `PORT` | default `8000` |
 | `WEBHOOK_SHARED_SECRET` | optional; if set, the Business Rule must send it as `X-Webhook-Secret` |
 | `SERVICENOW_WRITEBACK` | `on` (default) or `off` to compute + log the decision without writing back |
@@ -110,9 +110,10 @@ uv run python scripts/eval_prompt.py   # run the 3 goldens through the real mode
   Rule. Check the PDI **System Log → All** for `Task0` lines.
 - **PDI asleep** — wake it from the developer portal.
 - **`429` / `503` from Gemini** — free-tier limits are ~10 req/min and, on a fresh
-  project, as low as ~20–50 req/**day** for `gemini-2.5-flash`. The service retries with
-  backoff and falls back to `escalate` when exhausted. For heavy iteration set
-  `GEMINI_MODEL=gemini-2.5-flash-lite` (higher daily quota) or wait for the daily reset.
+  project, as low as ~20 req/**day** *per model id*. The service retries with backoff and
+  falls back to `escalate` when exhausted. If one model is exhausted, switch
+  `GEMINI_MODEL` to another id (`gemini-flash-latest`, `gemini-2.5-flash`, …) — each has
+  its own daily bucket — or use a second API key from a new AI Studio project.
 - **PDI login fails** — repeated failed Basic-auth attempts can lock the account for ~30
   min; confirm the password by logging into the ServiceNow UI first.
 - **Incident stuck / not re-processed** — a completed incident is deduped by
