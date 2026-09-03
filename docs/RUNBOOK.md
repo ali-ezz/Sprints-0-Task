@@ -40,6 +40,11 @@ URL changes, so redo step 3.
 ServiceNow → **All** → type `sys_script.list` → open **`Task0 - Send Incident to Agent`**:
 
 - **Active** = ✅ true
+- **When to run** tab: **When** = `after`, **Insert** = ✅, **Update** = ⬜ (unticked).
+  This rule was created via the API — after you save it in the UI, **reopen it and
+  re-confirm Insert is ticked and Update is not**. If Update gets left on, the write-back
+  PATCH re-fires the rule (the dedup guard stops the loop, but you'll see confusing
+  repeat log lines during the demo).
 - In the **Script**, change the endpoint line to your tunnel URL, keeping `/webhook`:
   `r.setEndpoint('https://<name>.loca.lt/webhook');`
 - Confirm this line matches your `.env`:
@@ -62,6 +67,12 @@ matches; check ServiceNow **All → System Log → All**, filter `Task0`.
 
 **Shots 2–7 — before/after for each decision.** Cleanest method:
 
+0. **Clear the earlier test incidents first.** Prior verification runs left two full
+   respond/ask/escalate sets on the PDI (`INC0010002`–`4` and `INC0010006`–`8`, plus any
+   smoke-test ones). In **All → Incident**, filter `Short description` for `printer` /
+   `email` / `leave`, select those rows, and **Delete** — so your incident list shows only
+   the clean trio you're about to create and a grader browsing it isn't looking at
+   duplicates.
 1. In `.env` set `SERVICENOW_WRITEBACK=off`, restart Terminal 1. Business Rule still on.
 2. Create these three incidents:
    | Short description | Description |
@@ -104,11 +115,13 @@ Put the 7 images in `docs/screenshots/`.
 5. **(25s) escalate** — create the annual-leave incident → log `decision=escalate` → a
    **work note** on the incident.
 6. **(20s) no double-processing** — this is a **double POST of one payload**, not two
-   tickets:
+   tickets. Use a **fresh** incident's sys_id that has not been replayed yet (or add
+   `--force` to the first call to clear any prior dedup row):
    ```bash
    uv run python scripts/send_test.py --url https://<name>.loca.lt/webhook \
-     --secret task0-secret-2026 --sys-id <SYS_ID> --number <INC> --short "test"
-   # run it twice
+     --secret task0-secret-2026 --sys-id <FRESH_SYS_ID> --number <INC> --short "test" --force
+   uv run python scripts/send_test.py --url https://<name>.loca.lt/webhook \
+     --secret task0-secret-2026 --sys-id <FRESH_SYS_ID> --number <INC> --short "test"
    ```
    First → `{"status":"accepted"}`; second → `{"status":"duplicate"}`; incident updated once.
 7. **(15s) bad input** —
