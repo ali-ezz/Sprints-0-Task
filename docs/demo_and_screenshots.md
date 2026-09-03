@@ -1,5 +1,36 @@
 # Demo video and screenshots
 
+> The loop is already verified working on `dev434590` (see the repo README). Incidents
+> `INC0010002` (respond), `INC0010003` (ask), `INC0010004` (escalate) are the reference
+> results from that run. What's below is for capturing your own clean before/after set and
+> the video.
+
+## Gemini free-tier quota — plan around it
+
+`gemini-2.5-flash` free tier allows **~20 `generateContent` requests per day per project**
+(`GenerateRequestsPerDayPerProjectPerModel-FreeTier`) plus ~10/min. When it's exhausted,
+every decision falls back to `escalate` (by design — safe), which is not what you want on
+camera. Options:
+
+- Wait for the daily reset (~24 h cycle, midnight US Pacific), then record in one sitting.
+- Or create a **second API key in a new Google AI Studio project** (fresh 20/day) and put
+  it in `.env`.
+- Keep the whole demo under ~10 incidents and don't create them faster than one every
+  ~8 seconds.
+
+## Tunnel — pick what works on your network
+
+- **ngrok** — most reliable. One-time: grab your real authtoken from the ngrok dashboard
+  ("Your Authtoken" — the long string, not the `cr_…` id) → `ngrok config add-authtoken <TOKEN>`
+  → `ngrok http 8000`.
+- **cloudflared** — `cloudflared tunnel --url http://localhost:8000`. Free, no account,
+  but some networks/DNS block `*.trycloudflare.com` (this one did — check with
+  `nslookup test.trycloudflare.com`).
+- **localtunnel** — `npx localtunnel --port 8000`. No account, but the free `loca.lt`
+  server is flaky (drops often).
+
+The tunnel URL changes every restart → update the Business Rule's `setEndpoint(...)` each time.
+
 ## Before you start
 
 1. **Verify `close_code` values on your instance** (the `respond` write-back sets one):
