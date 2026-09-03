@@ -67,6 +67,7 @@ cp .env.example .env
 
 Full ServiceNow / Business Rule walkthrough: [`docs/servicenow_setup.md`](docs/servicenow_setup.md).
 Demo + screenshot guide: [`docs/demo_and_screenshots.md`](docs/demo_and_screenshots.md).
+Permanent free public URL: [`docs/deploy.md`](docs/deploy.md).
 
 ## Run
 

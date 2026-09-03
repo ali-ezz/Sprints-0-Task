@@ -1,0 +1,26 @@
+# One-click deploy on Render (https://render.com) — free plan, no credit card.
+# Secrets (sync: false) are entered in the Render dashboard, never committed.
+services:
+  - type: web
+    name: task0-agentic-incident-flow
+    runtime: docker
+    plan: free
+    healthCheckPath: /healthz
+    autoDeploy: true
+    envVars:
+      - key: SERVICENOW_INSTANCE_URL
+        sync: false
+      - key: SERVICENOW_USERNAME
+        sync: false
+      - key: SERVICENOW_PASSWORD
+        sync: false
+      - key: GEMINI_API_KEY
+        sync: false
+      - key: WEBHOOK_SHARED_SECRET
+        sync: false
+      - key: SERVICENOW_CLOSE_CODE
+        value: Solution provided
+      - key: GEMINI_MODEL
+        value: gemini-flash-latest
+      - key: SERVICENOW_WRITEBACK
+        value: "on"

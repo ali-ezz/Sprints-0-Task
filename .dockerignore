@@ -1,0 +1,16 @@
+.git
+.venv
+__pycache__
+*.pyc
+.pytest_cache
+.ruff_cache
+tests
+docs
+scripts
+AI_Engineering_Task0_Assets
+*.sqlite3
+*.log
+.env
+.env.*
+!.env.example
+CLAUDE.md
