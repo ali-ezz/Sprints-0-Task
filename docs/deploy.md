@@ -2,7 +2,7 @@
 
 The task can be demoed with a local tunnel (`cloudflared` / `ngrok` / `localtunnel`), but a
 deploy gives a stable URL that survives your laptop being closed — good for a presentation
-and for graders. All options below are **free, no credit card**.
+and for graders. As of late 2026 Render, Fly and Hugging Face Docker Spaces all require a card (they do not charge on the free plan, but a card is needed to verify). The genuinely card-free path is a local tunnel — see [RUNBOOK.md](RUNBOOK.md). Deploy only if you want a permanent URL and can add a card.
 
 The repo already contains a `Dockerfile` (portable) and `render.yaml` (Render blueprint).
 Secrets are **never committed** — you enter them in the host's dashboard.

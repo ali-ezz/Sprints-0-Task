@@ -66,7 +66,8 @@ cp .env.example .env
 | `DEDUP_DB_PATH` | SQLite file for the once-only guard (default `dedup.sqlite3`) |
 
 Full ServiceNow / Business Rule walkthrough: [`docs/servicenow_setup.md`](docs/servicenow_setup.md).
-Demo + screenshot guide: [`docs/demo_and_screenshots.md`](docs/demo_and_screenshots.md).
+Run it yourself (demo + screenshots): [`docs/RUNBOOK.md`](docs/RUNBOOK.md).
+Demo + screenshot detail: [`docs/demo_and_screenshots.md`](docs/demo_and_screenshots.md).
 Permanent free public URL: [`docs/deploy.md`](docs/deploy.md).
 
 ## Run
