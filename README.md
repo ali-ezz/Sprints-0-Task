@@ -72,8 +72,30 @@ Permanent free public URL: [`docs/deploy.md`](docs/deploy.md).
 
 ## Demo
 
-- **Video** (2–4 min, full loop live): [`docs/demo.mov`](docs/demo.mov)
-- **Screenshots** (Business Rule setup + before/after ×3): [`docs/screenshots/`](docs/screenshots/)
+**▶️ [Watch the demo video](docs/demo.mov)** — full loop live on the PDI: create a ticket,
+watch the service process it in the background, see the decision land on that same ticket.
+
+**Business Rule** — `after` + `Insert` only, active, pointed at the tunnel:
+
+![Business Rule](docs/screenshots/01-business-rule.png)
+
+**Printer issue → `respond`** (resolved with the KB fix)
+
+| Before | After |
+|---|---|
+| ![printer before](docs/screenshots/02-printer-before.png) | ![printer after](docs/screenshots/03-printer-after.png) |
+
+**Vague email issue → `ask`** (clarifying question posted as a customer-visible comment)
+
+| Before | After |
+|---|---|
+| ![email before](docs/screenshots/04-email-before.png) | ![email after](docs/screenshots/05-email-after.png) |
+
+**Leave request → `escalate`** (work note explaining why a human is needed)
+
+| Before | After |
+|---|---|
+| ![leave before](docs/screenshots/06-leave-before.png) | ![leave after](docs/screenshots/07-leave-after.png) |
 
 ## Run
 
