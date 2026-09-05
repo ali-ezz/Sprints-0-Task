@@ -72,7 +72,7 @@ Permanent free public URL: [`docs/deploy.md`](docs/deploy.md).
 
 ## Demo
 
-**▶️ [Watch the demo video](docs/demo.mov)** — full loop live on the PDI: create a ticket,
+**▶️ [Watch the demo video](docs/demo.mp4)** — full loop live on the PDI: create a ticket,
 watch the service process it in the background, see the decision land on that same ticket.
 
 **Business Rule** — `after` + `Insert` only, active, pointed at the tunnel:
