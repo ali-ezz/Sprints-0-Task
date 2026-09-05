@@ -25,6 +25,21 @@ Incident created in ServiceNow (PDI)
 
 ---
 
+## Live Demonstration & Video Evidence
+
+**▶️ [Watch the Live Demo Video](docs/demo.mp4)** *(4m 37s, 1080p Full HD, web-optimized for instant browser streaming)*
+
+The video shows the complete end-to-end automation operating live on ServiceNow PDI `dev434590`:
+1. **Service Startup & Tunnel (`0:00–0:25`)**: FastAPI running with Uvicorn and public tunnel established.
+2. **Business Rule Active (`0:25–0:40`)**: `Task0 - Send Incident to Agent` configured on `incident` insert.
+3. **Ticket 1 — `respond` (`0:40–1:35`)**: Printer issue submitted → webhook responds in milliseconds (`202 Accepted`) → Gemini recommends restart procedure from KB0010001 → incident automatically transitions to **Resolved** (`state=6`) with close code and resolution notes.
+4. **Ticket 2 — `ask` (`1:35–2:20`)**: Vague email report submitted → webhook returns `202` → Gemini asks for clarifying details → customer-visible **Additional comments** posted.
+5. **Ticket 3 — `escalate` (`2:20–3:10`)**: Annual leave request submitted → zero IT KB match → internal **Work note** records escalation for a human agent while customer comments remain untouched.
+6. **No Double Processing (`3:10–3:55`)**: Identical payload sent twice → first is `accepted`, second is rejected as `duplicate` (FR5).
+7. **Perimeter Error Handling (`3:55–4:37`)**: Malformed payload rejected with clean `422 Unprocessable Entity` (NFR3); health probe continuously returns `200 OK`.
+
+---
+
 ## Prerequisites
 
 Before starting, ensure you have:
