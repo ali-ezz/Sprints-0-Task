@@ -70,6 +70,11 @@ Run it yourself (demo + screenshots): [`docs/RUNBOOK.md`](docs/RUNBOOK.md).
 Demo + screenshot detail: [`docs/demo_and_screenshots.md`](docs/demo_and_screenshots.md).
 Permanent free public URL: [`docs/deploy.md`](docs/deploy.md).
 
+## Demo
+
+- **Video** (2–4 min, full loop live): [`docs/demo.mov`](docs/demo.mov)
+- **Screenshots** (Business Rule setup + before/after ×3): [`docs/screenshots/`](docs/screenshots/)
+
 ## Run
 
 ```bash
